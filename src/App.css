@@ -1052,6 +1052,20 @@
   filter: blur(22px);
 }
 
+.app-boot-stage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  min-height: 7.2em;
+}
+
+.app-boot-stats,
+.app-boot-enter {
+  grid-area: 1 / 1;
+}
+
 .app-boot-status,
 .app-boot-pct,
 .app-boot-enter {
@@ -1065,6 +1079,18 @@
   text-align: center;
 }
 
+.app-boot-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 0.62s cubic-bezier(0.22, 0.12, 0.24, 1);
+}
+
+.app-boot.is-ready .app-boot-stats {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .app-boot-status {
   margin-bottom: 8px;
   font-size: clamp(14px, 3.2vw, 18px);
@@ -1073,7 +1099,6 @@
 }
 
 .app-boot-pct {
-  margin-bottom: 22px;
   font-size: clamp(28px, 7vw, 44px);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -1082,16 +1107,16 @@
 
 .app-boot-enter {
   isolation: isolate;
-  pointer-events: auto;
+  pointer-events: none;
   padding: 12px 28px;
-  min-width: 7.5em;
-  font-size: clamp(22px, 5vw, 30px);
+  min-width: 6.4em;
+  font-size: clamp(20px, 4.6vw, 28px);
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   cursor: pointer;
   appearance: none;
   outline: none;
-  opacity: 0.28;
+  opacity: 0;
   background-color: rgba(255, 255, 255, 0.001);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -1121,6 +1146,7 @@
 }
 
 .app-boot-enter.is-ready {
+  pointer-events: auto;
   opacity: 1;
   animation: boot-enter-pop 0.7s cubic-bezier(0.22, 0.12, 0.24, 1) both;
 }
@@ -1156,7 +1182,7 @@
 
 @keyframes boot-enter-pop {
   from {
-    opacity: 0.28;
+    opacity: 0;
     transform: scale(0.94);
   }
 
@@ -1164,6 +1190,26 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+.app-boot.is-error .app-boot-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-boot.is-error .app-boot-stats,
+.app-boot.is-error .app-boot-enter {
+  grid-area: auto;
+}
+
+.app-boot.is-error .app-boot-pct {
+  margin-bottom: 22px;
+}
+
+.app-boot.is-error .app-boot-enter.is-ready {
+  animation: none;
+  opacity: 1;
 }
 
 @keyframes boot-out {
@@ -1209,5 +1255,9 @@
   .app-boot.is-leaving,
   .app-boot-enter.is-ready {
     animation: none;
+  }
+
+  .app-boot.is-ready .app-boot-stats {
+    transition: none;
   }
 }

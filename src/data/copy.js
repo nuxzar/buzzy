@@ -1,6 +1,6 @@
 export const BOOT = {
   status: '正在游上来',
-  enter: 'ENTER',
+  enter: '认识一下',
   retry: '再试一次',
   fail: '游丢了',
 }

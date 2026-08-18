@@ -307,6 +307,9 @@ const CAMERA_DIR = new THREE.Vector3(0, -1, 4).normalize();
 const MODEL_LIFT = 0.3;
 const SWIM_DURATION = 3.2;
 const SWIM_EASE = [0.22, 0.12, 0.24, 1];
+const ARRIVE_DURATION = 2.6;
+const ARRIVE_DISTANCE = 18;
+const ARRIVE_EASE = [0.22, 0.12, 0.24, 1];
 
 function bezierEase(t, x1, y1, x2, y2) {
   let u = t;
@@ -1222,6 +1225,7 @@ export function createLiquidObject(elements, options = {}) {
   let staged = false;
   let readyFrames = 0;
   let loadNotified = false;
+  let arrive = 0;
 
   const loader = new GLTFLoader();
   const draco = new DRACOLoader();
@@ -1258,6 +1262,15 @@ export function createLiquidObject(elements, options = {}) {
     model.position.sub(offset);
     applyFit();
     fitGroup.add(model);
+    if (!reducedMotion) {
+      arrive = 0;
+      const along = -ARRIVE_DISTANCE;
+      floatGroup.position.set(
+        config.xOffset + CAMERA_DIR.x * along,
+        MODEL_LIFT + config.yOffset + CAMERA_DIR.y * along,
+        CAMERA_DIR.z * along,
+      );
+    }
   }
 
   function buildModel() {
@@ -1389,6 +1402,7 @@ export function createLiquidObject(elements, options = {}) {
       buildModel();
       staged = true;
       readyFrames = 0;
+      if (!reducedMotion) arrive = 0;
       if (!disposed) config.onDecoded?.();
     } catch (error) {
       if (disposed || token !== loadToken) return;
@@ -1398,9 +1412,11 @@ export function createLiquidObject(elements, options = {}) {
 
   const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   let reducedMotion = motionQuery.matches;
+  if (reducedMotion) arrive = 1;
   const onMotionChange = () => {
     reducedMotion = motionQuery.matches;
     if (reducedMotion) {
+      arrive = 1;
       floatGroup.rotation.set(0, 0, 0);
       floatGroup.scale.setScalar(1);
     }
@@ -1838,6 +1854,13 @@ export function createLiquidObject(elements, options = {}) {
       const bulge = 1 - squash * 0.5;
       floatGroup.scale.set(bulge, 1 + squash, bulge);
 
+      if (model && arrive < 1) {
+        arrive = Math.min(1, arrive + delta / ARRIVE_DURATION);
+      }
+      const arriveT = bezierEase(Math.min(Math.max(arrive, 0), 1), ...ARRIVE_EASE);
+      const far = 1 - arriveT;
+      const along = -ARRIVE_DISTANCE * far;
+
       if (swim > 0 && swim < 1) {
         swim = Math.min(1, swim + delta / SWIM_DURATION);
       }
@@ -1854,18 +1877,25 @@ export function createLiquidObject(elements, options = {}) {
         ? Math.abs(Math.sin(elapsed * 4.4)) * 0.07 * wagFade
         : 0;
 
+      floatGroup.position.x =
+        config.xOffset +
+        CAMERA_DIR.x * along +
+        Math.sin(arriveT * Math.PI) * 0.7 * far;
       floatGroup.position.y =
         MODEL_LIFT +
         config.yOffset +
-        (Math.sin(elapsed / 1.5) / 10) * config.floatIntensity +
+        CAMERA_DIR.y * along +
+        (Math.sin(elapsed / 1.5) / 10) * config.floatIntensity * arriveT +
         happyBob;
+      floatGroup.position.z = CAMERA_DIR.z * along;
       floatGroup.rotation.x =
         (Math.cos(elapsed / 4) / 8) * config.rotationIntensity * (happy ? 0.35 : 1) +
         wobbleTilt.x;
       floatGroup.rotation.y =
         (Math.sin(elapsed / 4) / 8) * config.rotationIntensity * (happy ? 0.2 : 1) +
         wobbleTilt.y +
-        happyWag;
+        happyWag +
+        far * 0.55;
       floatGroup.rotation.z =
         (Math.sin(elapsed / 4) / 20) * config.rotationIntensity + happyRoll;
     }
@@ -1983,6 +2013,7 @@ export function createLiquidObject(elements, options = {}) {
       onDone?.();
       return;
     }
+    arrive = 1;
     swimOnDone = typeof onDone === "function" ? onDone : null;
     if (swim <= 0) swim = 0.001;
     controls.enableRotate = false;
