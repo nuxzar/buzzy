@@ -8,7 +8,7 @@ export const BOOT = {
 export const INTRO = {
   lead: '我是 Lil Nian，我老凶狠了',
   ask: '聊聊？',
-  cta: '和 Buzzy 专辑灵感来源聊聊',
+  cta: '聊呗',
 }
 
 export const NEXT_CHAPTER = {
@@ -23,14 +23,14 @@ export const CERT = {
 }
 
 export const BRAND = {
-  title: 'BUZZY // 鲶鱼',
+  title: 'Buzzy // 鲶鱼',
   gift: ['这里是给 Buzzy', '和喜欢 Buzzy 朋友们的一个小礼物', 'by Oiiii studio'],
 }
 
 export const HONOR = {
   title: '现在赠与你「最真实的人」荣誉证书',
   sub: '凭借荣誉证书可购买《鲶鱼》典藏版',
-  review: '回顾下《鲶鱼》',
+  review: '听听《鲶鱼》',
   save: '保存这张证书',
   deluxe: '了解下典藏版',
   deluxeAlt: '《鲶鱼》典藏版：头套与小鲶鱼',
