@@ -11,6 +11,9 @@ import { BRAND } from './data/copy'
 import './App.css'
 
 const BOOT_LEAVE_MS = 900
+const MODEL_SRC =
+  'https://pub-1dad2170fdae4bf6906ef4d6dffac632.r2.dev/base_basic_shaded_opt.glb'
+const MODEL_FALLBACK_SRC = '/models/base_basic_shaded_opt.glb'
 
 function getModelFit() {
   const fov = 58
@@ -132,7 +135,8 @@ function App() {
           <LiquidObject
             key={fishKey}
             ref={fishRef}
-            src="/models/base_basic_shaded_opt.glb"
+            src={MODEL_SRC}
+            fallbackSrc={MODEL_FALLBACK_SRC}
             dracoDecoderPath="/draco/"
             distortion={2}
             aberration={0.75}
@@ -165,10 +169,10 @@ function App() {
                 setProgress(0)
                 return
               }
-              setProgress(Math.round(ratio * 70))
+              setProgress(Math.round(ratio * 85))
             }}
             onDecoded={() => {
-              setProgress((current) => Math.max(current, 88))
+              setProgress((current) => Math.max(current, 93))
             }}
             onLoad={() => {
               setProgress(100)

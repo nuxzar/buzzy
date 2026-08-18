@@ -4,37 +4,9 @@ import { INTRO, NEXT_CHAPTER } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import AlbumHonor from './AlbumHonor'
 import NameInput from './NameInput'
+import Bubbles from './Bubbles'
 
 const NEXT_MS = 980
-
-const BUBBLES = [
-  { id: 'b1', x: '10%', size: 8, dur: 7.4, delay: 0.1 },
-  { id: 'b2', x: '22%', size: 4, dur: 5.8, delay: 1.2 },
-  { id: 'b3', x: '38%', size: 6, dur: 8.6, delay: 0.6 },
-  { id: 'b4', x: '54%', size: 5, dur: 6.4, delay: 2.1 },
-  { id: 'b5', x: '71%', size: 9, dur: 9.2, delay: 0.4 },
-  { id: 'b6', x: '84%', size: 4, dur: 5.2, delay: 1.7 },
-  { id: 'b7', x: '93%', size: 6, dur: 7.8, delay: 2.8 },
-]
-
-function Bubbles() {
-  return (
-    <div className="app-quiz-bubbles" aria-hidden="true">
-      {BUBBLES.map((bubble) => (
-        <span
-          key={bubble.id}
-          className="app-quiz-bubble"
-          style={{
-            '--x': bubble.x,
-            '--size': `${bubble.size}px`,
-            '--dur': `${bubble.dur}s`,
-            '--delay': `${bubble.delay}s`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
 
 export default function Quiz({ onAnswer, onComplete, onAccept }) {
   const [phase, setPhase] = useState('intro')
@@ -55,6 +27,9 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
     if (phase !== 'quiz' || picked === null) return undefined
 
     const timer = window.setTimeout(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
       if (index >= QUESTIONS.length - 1) {
         setPhase('happy')
         setPicked(null)
@@ -102,8 +77,9 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
     }
   }, [phase])
 
-  function handleStart() {
+  function handleStart(event) {
     if (introLeaving) return
+    event.currentTarget.blur()
     setIntroLeaving(true)
     onAnswer?.()
     window.setTimeout(() => {
@@ -114,15 +90,17 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
     }, NEXT_MS)
   }
 
-  function handlePick(optionIndex) {
+  function handlePick(optionIndex, event) {
     if (picked !== null) return
+    event.currentTarget.blur()
     setPicked(optionIndex)
     onAnswer?.()
   }
 
-  function handleAccept(submitted) {
+  function handleAccept(submitted, event) {
     const name = (typeof submitted === 'string' ? submitted : nickname).trim()
     if (!name) return
+    event?.currentTarget?.blur()
     setNickname(name)
     onAccept?.()
     setPhase('chapter')
@@ -168,7 +146,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
               type="button"
               className={`app-quiz-opt${picked === optionIndex ? ' is-picked' : ''}`}
               disabled={quizLeaving}
-              onClick={() => handlePick(optionIndex)}
+              onClick={(event) => handlePick(optionIndex, event)}
             >
               <TrailCopy text={label} />
             </button>
@@ -198,7 +176,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
             type="button"
             className={`app-quiz-opt app-quiz-intro-cta${verdictLeaving ? ' is-picked' : ''}`}
             disabled={verdictLeaving || !nickname.trim()}
-            onClick={() => handleAccept()}
+            onClick={(event) => handleAccept(undefined, event)}
           >
             <TrailCopy text={NEXT_CHAPTER.cta} />
           </button>

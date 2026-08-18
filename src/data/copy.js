@@ -33,7 +33,7 @@ export const HONOR = {
   review: '回顾下《鲶鱼》',
   save: '保存这张证书',
   deluxe: '了解下典藏版',
-  deluxeSoon: '典藏版晚点上线',
+  deluxeAlt: '《鲶鱼》典藏版：头套与小鲶鱼',
   albumUrl:
     'https://music.163.com/album?id=392637099&uct2=U2FsdGVkX18YBAg4hpy7APtskoH++VKqbaNmLwzTfzU=',
 }

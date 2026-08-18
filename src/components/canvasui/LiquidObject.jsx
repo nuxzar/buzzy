@@ -45,6 +45,7 @@ const DEFAULTS = {
   fov: 60,
   cameraDistance: 4,
   dracoDecoderPath: "/draco/",
+  fallbackSrc: "",
   onFetchProgress: null,
   onDecoded: null,
   onLoad: null,
@@ -978,11 +979,23 @@ function textureFromImageData(data) {
   return texture;
 }
 
-async function fetchArrayBuffer(src, onProgress) {
-  const response = await fetch(src);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const total = Number(response.headers.get("content-length")) || 0;
-  if (!response.body) {
+const ESTIMATED_GLB_BYTES = 1_063_292;
+const RANGE_CHUNK = 128 * 1024;
+const FETCH_TIMEOUT_MS = 25000;
+
+function concatBytes(parts, total) {
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const part of parts) {
+    bytes.set(part, offset);
+    offset += part.byteLength;
+  }
+  return bytes.buffer;
+}
+
+async function readStream(response, onProgress, signal) {
+  const total = Number(response.headers.get("content-length")) || ESTIMATED_GLB_BYTES;
+  if (!response.body || typeof response.body.getReader !== "function") {
     const buffer = await response.arrayBuffer();
     onProgress?.(1);
     return buffer;
@@ -992,21 +1005,77 @@ async function fetchArrayBuffer(src, onProgress) {
   const chunks = [];
   let received = 0;
   for (;;) {
+    if (signal?.aborted) {
+      reader.cancel().catch(() => {});
+      throw new DOMException("Aborted", "AbortError");
+    }
     const { done, value } = await reader.read();
     if (done) break;
     chunks.push(value);
     received += value.byteLength;
-    if (total > 0) onProgress?.(Math.min(received / total, 0.999));
-  }
-
-  const bytes = new Uint8Array(received);
-  let offset = 0;
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset);
-    offset += chunk.byteLength;
+    onProgress?.(Math.min(received / Math.max(total, received), 0.999));
   }
   onProgress?.(1);
-  return bytes.buffer;
+  return concatBytes(chunks, received);
+}
+
+async function fetchByRange(src, onProgress, signal) {
+  const first = await fetch(src, {
+    headers: { Range: `bytes=0-${RANGE_CHUNK - 1}` },
+    signal,
+    cache: "no-store",
+    mode: "cors",
+  });
+
+  if (first.status === 200) return readStream(first, onProgress, signal);
+  if (first.status !== 206) throw new Error(`HTTP ${first.status}`);
+
+  const total = Number(first.headers.get("content-range")?.split("/")[1]) || 0;
+  const firstBytes = new Uint8Array(await first.arrayBuffer());
+  const parts = [firstBytes];
+  let received = firstBytes.byteLength;
+  onProgress?.(total > 0 ? Math.min(received / total, 0.999) : 0.12);
+
+  while (total > 0 && received < total) {
+    const chunkEnd = Math.min(received + RANGE_CHUNK - 1, total - 1);
+    const part = await fetch(src, {
+      headers: { Range: `bytes=${received}-${chunkEnd}` },
+      signal,
+      cache: "no-store",
+      mode: "cors",
+    });
+    if (!part.ok) throw new Error(`HTTP ${part.status}`);
+    const buf = new Uint8Array(await part.arrayBuffer());
+    if (!buf.byteLength) break;
+    parts.push(buf);
+    received += buf.byteLength;
+    onProgress?.(Math.min(received / total, 0.999));
+  }
+
+  onProgress?.(1);
+  return concatBytes(parts, received);
+}
+
+async function fetchWhole(src, onProgress, signal) {
+  const response = await fetch(src, { signal, cache: "no-store", mode: "cors" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return readStream(response, onProgress, signal);
+}
+
+async function fetchArrayBuffer(src, onProgress, timeoutMs = FETCH_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    onProgress?.(0.01);
+    try {
+      return await fetchByRange(src, onProgress, controller.signal);
+    } catch (error) {
+      if (controller.signal.aborted) throw error;
+      return await fetchWhole(src, onProgress, controller.signal);
+    }
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 
 export function createLiquidObject(elements, options = {}) {
@@ -1260,10 +1329,17 @@ export function createLiquidObject(elements, options = {}) {
     }
     try {
       config.onFetchProgress?.(0);
-      const buffer = await fetchArrayBuffer(src, (ratio) => {
+      const report = (ratio) => {
         if (disposed || token !== loadToken) return;
         config.onFetchProgress?.(ratio);
-      });
+      };
+      let buffer;
+      try {
+        buffer = await fetchArrayBuffer(src, report);
+      } catch (primaryError) {
+        if (!config.fallbackSrc || config.fallbackSrc === src) throw primaryError;
+        buffer = await fetchArrayBuffer(config.fallbackSrc, report);
+      }
       if (disposed || token !== loadToken) return;
       const bytes = new Uint8Array(buffer);
       const kind = sniffKind(bytes);

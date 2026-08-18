@@ -3,9 +3,11 @@ import { FlameWrap } from './canvasui/FlameWrap'
 import { CERT, HONOR } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import SiteLayer from './SiteLayer'
+import Bubbles from './Bubbles'
 
 const COVER_SRC = '/images/cover.jpg'
 const SEAL_SRC = '/images/seal.png'
+const DELUXE_SRC = '/images/deluxe.jpg'
 
 function makeCertCode() {
   return String(Math.floor(Math.random() * 100000)).padStart(5, '0')
@@ -18,6 +20,32 @@ function loadImage(src) {
     image.onerror = reject
     image.src = src
   })
+}
+
+async function shareOrSave(file, filename) {
+  const payload = { files: [file], title: filename }
+
+  const canShareFiles =
+    typeof navigator.share === 'function' &&
+    (typeof navigator.canShare !== 'function' || navigator.canShare(payload))
+
+  if (canShareFiles) {
+    try {
+      await navigator.share(payload)
+      return
+    } catch (error) {
+      if (error?.name === 'AbortError') return
+    }
+  }
+
+  const url = URL.createObjectURL(file)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500)
 }
 
 async function composeCertificate(nickname, code) {
@@ -61,6 +89,7 @@ export default function AlbumHonor({ nickname }) {
   const name = nickname.trim() || '无名'
   const [copyReady, setCopyReady] = useState(false)
   const [deluxeOpen, setDeluxeOpen] = useState(false)
+  const [posterFile, setPosterFile] = useState(null)
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -72,20 +101,35 @@ export default function AlbumHonor({ nickname }) {
     return () => window.clearTimeout(timer)
   }, [])
 
-  async function savePoster() {
-    const canvas = await composeCertificate(name, code)
-    const blob = await new Promise((resolve) => {
-      canvas.toBlob(resolve, 'image/png')
+  useEffect(() => {
+    let cancelled = false
+    const filename = `BUZZY-鲶鱼-证书-${name}.png`
+    composeCertificate(name, code).then(async (canvas) => {
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, 'image/png')
+      })
+      if (!blob || cancelled) return
+      setPosterFile(new File([blob], filename, { type: 'image/png' }))
     })
-    if (!blob) return
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `BUZZY-鲶鱼-证书-${name}.png`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    URL.revokeObjectURL(url)
+    return () => {
+      cancelled = true
+    }
+  }, [name, code])
+
+  async function savePoster(event) {
+    event.currentTarget.blur()
+    const filename = `BUZZY-鲶鱼-证书-${name}.png`
+    let file = posterFile
+    if (!file) {
+      const canvas = await composeCertificate(name, code)
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob(resolve, 'image/png')
+      })
+      if (!blob) return
+      file = new File([blob], filename, { type: 'image/png' })
+      setPosterFile(file)
+    }
+    await shareOrSave(file, filename)
   }
 
   return (
@@ -132,6 +176,7 @@ export default function AlbumHonor({ nickname }) {
         </FlameWrap>
       </div>
       <div className={`app-album-copy${copyReady ? ' is-revealed' : ''}`}>
+        <Bubbles />
         <p className="app-quiz-q app-album-title">
           <TrailCopy text={HONOR.title} />
         </p>
@@ -155,9 +200,12 @@ export default function AlbumHonor({ nickname }) {
         </div>
       </div>
       <SiteLayer open={deluxeOpen} onClose={() => setDeluxeOpen(false)}>
-        <p className="app-quiz-q app-layer-line">
-          <TrailCopy text={HONOR.deluxeSoon} />
-        </p>
+        <img
+          className="app-layer-art"
+          src={DELUXE_SRC}
+          alt={HONOR.deluxeAlt}
+          draggable="false"
+        />
       </SiteLayer>
     </div>
   )
