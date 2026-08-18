@@ -36,8 +36,8 @@ export const QUESTIONS = [
   },
   {
     id: 'here',
-    text: '你怎么看待嘻哈圈也饭圈化？',
-    options: ['我乐意', '我没看，不支持也不反对','反对'],
+    text: '你怎么看待Buzzy的脏辫？',
+    options: ['年轻人不脏辫叫年轻人吗？', '我没看，不支持也不反对','反对，家里也不管管'],
   },
   {
     id: 'secret',
