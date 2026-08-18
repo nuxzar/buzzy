@@ -61,6 +61,7 @@ function App() {
   const [boot, setBoot] = useState('loading')
   const [progress, setProgress] = useState(0)
   const [bootError, setBootError] = useState(null)
+  const [fishArrived, setFishArrived] = useState(false)
 
   const live = boot === 'live'
   const booting = boot !== 'live'
@@ -88,6 +89,7 @@ function App() {
     setBootError(null)
     setProgress(0)
     setBoot('loading')
+    setFishArrived(false)
     setFishKey((key) => key + 1)
   }
 
@@ -133,7 +135,7 @@ function App() {
       </div>
       {showFish ? (
         <>
-          <Bubbles variant="fish" />
+          {live && fishArrived ? <Bubbles variant="fish" /> : null}
           <div className="app-object">
           <LiquidObject
             key={fishKey}
@@ -181,6 +183,7 @@ function App() {
               setProgress(100)
               setBoot((current) => (current === 'loading' ? 'ready' : current))
             }}
+            onArrive={() => setFishArrived(true)}
             onError={() => {
               setBootError(true)
             }}

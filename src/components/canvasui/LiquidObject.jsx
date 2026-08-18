@@ -49,6 +49,7 @@ const DEFAULTS = {
   onFetchProgress: null,
   onDecoded: null,
   onLoad: null,
+  onArrive: null,
   onError: null,
 };
 
@@ -1226,6 +1227,7 @@ export function createLiquidObject(elements, options = {}) {
   let readyFrames = 0;
   let loadNotified = false;
   let arrive = 0;
+  let arriveNotified = false;
 
   const loader = new GLTFLoader();
   const draco = new DRACOLoader();
@@ -1264,6 +1266,7 @@ export function createLiquidObject(elements, options = {}) {
     fitGroup.add(model);
     if (!reducedMotion) {
       arrive = 0;
+      arriveNotified = false;
       const along = -ARRIVE_DISTANCE;
       floatGroup.position.set(
         config.xOffset + CAMERA_DIR.x * along,
@@ -1402,7 +1405,10 @@ export function createLiquidObject(elements, options = {}) {
       buildModel();
       staged = true;
       readyFrames = 0;
-      if (!reducedMotion) arrive = 0;
+      if (!reducedMotion) {
+        arrive = 0;
+        arriveNotified = false;
+      }
       if (!disposed) config.onDecoded?.();
     } catch (error) {
       if (disposed || token !== loadToken) return;
@@ -1917,6 +1923,11 @@ export function createLiquidObject(elements, options = {}) {
     compositePass.uniforms.uAspect.value = aspect;
     compositePass.uniforms.uExposure.value = renderer.toneMappingExposure;
     runPass(compositePass, null);
+
+    if (model && arrive >= 1 && !arriveNotified) {
+      arriveNotified = true;
+      if (!disposed) config.onArrive?.();
+    }
 
     if (staged && model && !loadNotified) {
       readyFrames += 1;

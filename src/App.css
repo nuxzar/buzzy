@@ -827,6 +827,7 @@
   transform: translate(-50%, -54%);
   overflow: hidden;
   pointer-events: none;
+  animation: fish-bubbles-in 0.7s ease both;
 }
 
 .app-fish-bubble {
@@ -860,6 +861,16 @@
   100% {
     opacity: 0;
     transform: translate3d(var(--drift, 12px), -320px, 0) scale(1.18);
+  }
+}
+
+@keyframes fish-bubbles-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
