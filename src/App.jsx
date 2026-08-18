@@ -7,6 +7,7 @@ import BootScreen from './components/BootScreen'
 import SiteLayer from './components/SiteLayer'
 import TrailCopy from './components/TrailCopy'
 import Quiz from './components/Quiz'
+import Bubbles from './components/Bubbles'
 import { BRAND } from './data/copy'
 import './App.css'
 
@@ -131,7 +132,9 @@ function App() {
         />
       </div>
       {showFish ? (
-        <div className="app-object">
+        <>
+          <Bubbles variant="fish" />
+          <div className="app-object">
           <LiquidObject
             key={fishKey}
             ref={fishRef}
@@ -183,6 +186,7 @@ function App() {
             }}
           />
         </div>
+        </>
       ) : null}
       {live ? (
         <button type="button" className="app-brand" onClick={() => setGiftOpen(true)}>
