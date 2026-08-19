@@ -1,21 +1,30 @@
 export const BOOT = {
   status: '正在游上来',
-  enter: '认识一下',
+  enter: '这是个啥',
   retry: '再试一次',
   fail: '游丢了',
 }
 
 export const INTRO = {
-  lead: '我是 Lil Nian，我老凶狠了',
-  ask: '我有事问你…',
+  lead: '如你所见，我是一条鲶鱼',
+  ask: '那我问你……',
   cta: '问呗',
 }
 
-export const NEXT_CHAPTER = {
-  lead: '你特么比 Buzzy 真实',
-  ask: '我该怎么称呼你？',
+export const NEXT_CHAPTER_PASS = {
+  lead: '太牛逼了！恭喜！',
+  ask: '告诉我你叫什么名字！',
   cta: '就叫这个',
 }
+
+export const NEXT_CHAPTER_FAIL = {
+  lead: '有点遗憾，差那么一口气，但很感谢你支持',
+  ask: '你叫...？',
+  cta: '就叫这个',
+}
+
+/** @deprecated 填名文案见 NEXT_CHAPTER_PASS / NEXT_CHAPTER_FAIL */
+export const NEXT_CHAPTER = NEXT_CHAPTER_FAIL
 
 export const CERT = {
   idLabel: '证书编号',
@@ -57,7 +66,7 @@ export function honorFailSub(correctCount) {
 }
 
 export const POSTER = {
-  saveHint: '长按即可保存这张海报',
+  saveHint: '长按图片保存海报',
 }
 
 /** @deprecated 分支文案见 HONOR_PASS / HONOR_FAIL */

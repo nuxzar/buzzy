@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { pickQuizSet, QUIZ_LENGTH } from '../data/quizPick'
-import { INTRO, NEXT_CHAPTER } from '../data/copy'
+import { INTRO, NEXT_CHAPTER_PASS, NEXT_CHAPTER_FAIL } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import AlbumHonor from './AlbumHonor'
 import NameInput from './NameInput'
@@ -26,6 +26,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
   const quizLeaving = phase === 'quiz' && picked !== null
   const leaving = introLeaving || quizLeaving || verdictLeaving
   const passed = correctCount >= PASS_THRESHOLD
+  const nextChapter = passed ? NEXT_CHAPTER_PASS : NEXT_CHAPTER_FAIL
 
   useEffect(() => {
     if (phase !== 'quiz' || picked === null) return undefined
@@ -167,10 +168,10 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
         <div className="app-quiz-aura" aria-hidden="true" />
         <Bubbles />
         <p className="app-quiz-q app-quiz-intro-lead">
-          <TrailCopy text={NEXT_CHAPTER.lead} />
+          <TrailCopy text={nextChapter.lead} />
         </p>
         <p className="app-quiz-q app-quiz-intro-ask">
-          <TrailCopy text={NEXT_CHAPTER.ask} />
+          <TrailCopy text={nextChapter.ask} />
         </p>
         <NameInput
           value={nickname}
@@ -185,7 +186,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
             disabled={verdictLeaving || !nickname.trim()}
             onClick={(event) => handleAccept(undefined, event)}
           >
-            <TrailCopy text={NEXT_CHAPTER.cta} />
+            <TrailCopy text={nextChapter.cta} />
           </button>
         </div>
       </div>
