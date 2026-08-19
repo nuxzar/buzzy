@@ -432,7 +432,7 @@
 
 .app-pass-confetti {
   position: absolute;
-  inset: -18%;
+  inset: -48%;
   z-index: 6;
   pointer-events: none;
   overflow: visible;
@@ -445,47 +445,53 @@
   width: var(--w);
   height: var(--h);
   background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--c) 88%, #fff 12%) 0%,
-    var(--c) 55%,
-    color-mix(in srgb, var(--c) 82%, #000 18%) 100%
+    165deg,
+    color-mix(in srgb, var(--c) 90%, #fff 10%) 0%,
+    var(--c) 48%,
+    color-mix(in srgb, var(--c) 78%, #000 22%) 100%
   );
   border-radius: 1px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 1px 2px rgba(0, 0, 0, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 1px 3px rgba(0, 0, 0, 0.16);
   opacity: 0;
   will-change: transform, opacity;
-  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.08);
-  animation: pass-confetti-burst var(--dur) cubic-bezier(0.08, 0.84, 0.24, 1) var(--delay) forwards;
+  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.04);
+  animation: pass-confetti-burst var(--dur) var(--ease) var(--delay) forwards;
 }
 
 @keyframes pass-confetti-burst {
   0% {
     opacity: 0;
-    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.08);
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.04);
   }
 
-  8% {
-    opacity: 1;
+  6% {
+    opacity: 0.92;
   }
 
-  42% {
+  22% {
     opacity: 1;
+    transform: translate3d(calc(-50% + var(--peak-x)), calc(-50% + var(--peak-y)), 0)
+      rotate(calc(var(--rot-mid) * 0.35)) scale(1.08);
+  }
+
+  46% {
+    opacity: 0.96;
     transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty)), 0)
-      rotate(calc(var(--rot) * 0.55)) scale(1);
+      rotate(var(--rot-mid)) scale(1);
   }
 
-  78% {
-    opacity: 0.55;
-    transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty) + var(--fall)), 0)
-      rotate(calc(var(--rot) * 0.92)) scale(0.92);
+  68% {
+    opacity: 0.72;
+    transform: translate3d(calc(-50% + var(--drift-x)), calc(-50% + var(--drift-y)), 0)
+      rotate(calc(var(--rot-mid) + var(--rot-end) * 0.18)) scale(0.94);
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty) + var(--fall)), 0)
-      rotate(calc(var(--rot) + var(--flutter))) scale(0.65);
+    transform: translate3d(calc(-50% + var(--final-x)), calc(-50% + var(--final-y)), 0)
+      rotate(var(--rot-end)) scale(0.5);
   }
 }
 
