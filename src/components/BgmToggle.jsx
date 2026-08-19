@@ -1,6 +1,6 @@
 import { useEffect, useImperativeHandle, useRef, useState } from 'react'
 
-const BGM_SRC = '/audio/bgm.mp3'
+const BGM_SRC = '/audio/underwater.mp3'
 const BGM_VOLUME = 0.5
 const UNLOCK_EVENTS = ['pointerdown', 'touchstart', 'click', 'keydown']
 
