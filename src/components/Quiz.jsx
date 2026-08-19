@@ -191,7 +191,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
       </div>
     )
   } else if (phase === 'chapter') {
-    panel = <AlbumHonor nickname={nickname} passed={passed} />
+    panel = <AlbumHonor nickname={nickname} passed={passed} correctCount={correctCount} />
   }
 
   return (

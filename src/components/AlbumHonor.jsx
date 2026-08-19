@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FlameWrap } from './canvasui/FlameWrap'
-import { CERT, CERT_PASS, HONOR_PASS, HONOR_FAIL } from '../data/copy'
+import { CERT, CERT_PASS, HONOR_PASS, HONOR_FAIL, honorFailSub } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import SiteLayer from './SiteLayer'
 import Bubbles from './Bubbles'
@@ -123,8 +123,9 @@ async function composeCertificate(nickname, code, coverSrc, cert, cornerSrc) {
   return canvas
 }
 
-export default function AlbumHonor({ nickname, passed = false }) {
+export default function AlbumHonor({ nickname, passed = false, correctCount = 0 }) {
   const honor = passed ? HONOR_PASS : HONOR_FAIL
+  const sub = passed ? HONOR_PASS.sub : honorFailSub(correctCount)
   const cert = passed ? CERT_PASS : CERT
   const coverSrc = passed ? COVER_PASS_SRC : COVER_FAIL_SRC
   const cornerSrc = passed ? SEAL_SRC : BLUE_FISH_SRC
@@ -209,7 +210,7 @@ export default function AlbumHonor({ nickname, passed = false }) {
           <TrailCopy text={honor.title} />
         </p>
         <p className="app-quiz-q app-album-sub">
-          <TrailCopy text={honor.sub} />
+          <TrailCopy text={sub} />
         </p>
         <div className="app-quiz-options app-album-actions">
           {passed ? (
