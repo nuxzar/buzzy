@@ -24,7 +24,7 @@ export const CERT = {
 
 export const CERT_PASS = {
   idLabel: '凭证编号',
-  honorLine: '典藏版购买凭证',
+  honorLine: '典藏版购买权益',
 }
 
 export const BRAND = {
@@ -34,8 +34,8 @@ export const BRAND = {
 
 export const HONOR_PASS = {
   title: '你确实非常了解 Buzzy',
-  sub: '解锁了《鲶鱼》典藏版的购买权利',
-  save: '保存典藏版购买凭证',
+  sub: '解锁了《鲶鱼》典藏版的购买权益',
+  save: '保存典藏版购买权益海报',
   deluxe: '典藏版长什么样',
   buy: '去购买典藏版',
   deluxeAlt: '《鲶鱼》典藏版：头套与小鲶鱼',
@@ -43,8 +43,8 @@ export const HONOR_PASS = {
 }
 
 export const HONOR_FAIL = {
-  title: '现在赠与你「最真实的人」荣誉证书',
-  sub: '凭借荣誉证书可购买《鲶鱼》典藏版',
+  title: '现在赠予你「最真实的人」荣誉证书',
+  sub: '分享下这张证书吧',
   review: '听听《鲶鱼》',
   save: '保存这张证书',
   deluxe: '了解下实体专辑+周边',
