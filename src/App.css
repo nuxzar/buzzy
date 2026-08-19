@@ -920,11 +920,13 @@
   text-align: center;
 }
 
-.app-layer-panel:has(.app-layer-art) {
+.app-layer-panel:has(.app-layer-art),
+.app-layer-panel:has(.app-layer-poster) {
   width: min(520px, calc(100vw - 40px), calc(100dvh - 96px));
 }
 
-.app-layer-panel:has(.app-layer-art) .app-layer-aura {
+.app-layer-panel:has(.app-layer-art) .app-layer-aura,
+.app-layer-panel:has(.app-layer-poster) .app-layer-aura {
   display: none;
 }
 
@@ -938,6 +940,31 @@
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+}
+
+.app-layer-poster {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: 8px;
+  -webkit-touch-callout: default;
+  user-select: auto;
+}
+
+.app-layer-poster-hint {
+  position: relative;
+  z-index: 2;
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
 }
 
 .app-layer-aura {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FlameWrap } from './canvasui/FlameWrap'
-import { CERT, CERT_PASS, HONOR_PASS, HONOR_FAIL, honorFailSub } from '../data/copy'
+import { CERT, CERT_PASS, HONOR_PASS, HONOR_FAIL, honorFailSub, POSTER } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import SiteLayer from './SiteLayer'
 import Bubbles from './Bubbles'
@@ -64,22 +64,12 @@ function loadImage(src) {
   })
 }
 
-async function shareOrSave(file, filename) {
-  const payload = { files: [file], title: filename }
+function isMobileSaveContext() {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(hover: none), (pointer: coarse)').matches
+}
 
-  const canShareFiles =
-    typeof navigator.share === 'function' &&
-    (typeof navigator.canShare !== 'function' || navigator.canShare(payload))
-
-  if (canShareFiles) {
-    try {
-      await navigator.share(payload)
-      return
-    } catch (error) {
-      if (error?.name === 'AbortError') return
-    }
-  }
-
+function downloadPosterFile(file, filename) {
   const url = URL.createObjectURL(file)
   const link = document.createElement('a')
   link.href = url
@@ -135,6 +125,8 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
   const name = nickname.trim() || '无名'
   const [copyReady, setCopyReady] = useState(false)
   const [deluxeOpen, setDeluxeOpen] = useState(false)
+  const [posterOpen, setPosterOpen] = useState(false)
+  const [posterPreviewUrl, setPosterPreviewUrl] = useState(null)
   const [posterFile, setPosterFile] = useState(null)
 
   const posterLabel = passed ? `BUZZY-鲶鱼-典藏凭证-${name}` : `BUZZY-鲶鱼-证书-${name}`
@@ -164,20 +156,52 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
     }
   }, [name, code, coverSrc, cert, cornerSrc, posterLabel])
 
+  useEffect(
+    () => () => {
+      if (posterPreviewUrl) URL.revokeObjectURL(posterPreviewUrl)
+    },
+    [posterPreviewUrl],
+  )
+
+  function closePosterPreview() {
+    setPosterOpen(false)
+    setPosterPreviewUrl((current) => {
+      if (current) URL.revokeObjectURL(current)
+      return null
+    })
+  }
+
+  async function ensurePosterFile() {
+    const filename = `${posterLabel}.png`
+    if (posterFile) return posterFile
+
+    const canvas = await composeCertificate(name, code, coverSrc, cert, cornerSrc)
+    const blob = await new Promise((resolve) => {
+      canvas.toBlob(resolve, 'image/png')
+    })
+    if (!blob) return null
+
+    const file = new File([blob], filename, { type: 'image/png' })
+    setPosterFile(file)
+    return file
+  }
+
   async function savePoster(event) {
     event.currentTarget.blur()
     const filename = `${posterLabel}.png`
-    let file = posterFile
-    if (!file) {
-      const canvas = await composeCertificate(name, code, coverSrc, cert, cornerSrc)
-      const blob = await new Promise((resolve) => {
-        canvas.toBlob(resolve, 'image/png')
+    const file = await ensurePosterFile()
+    if (!file) return
+
+    if (isMobileSaveContext()) {
+      setPosterPreviewUrl((current) => {
+        if (current) URL.revokeObjectURL(current)
+        return URL.createObjectURL(file)
       })
-      if (!blob) return
-      file = new File([blob], filename, { type: 'image/png' })
-      setPosterFile(file)
+      setPosterOpen(true)
+      return
     }
-    await shareOrSave(file, filename)
+
+    downloadPosterFile(file, filename)
   }
 
   return (
@@ -255,6 +279,18 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
           alt={honor.deluxeAlt}
           draggable="false"
         />
+      </SiteLayer>
+      <SiteLayer open={posterOpen} onClose={closePosterPreview}>
+        {posterPreviewUrl ? (
+          <>
+            <img
+              className="app-layer-poster"
+              src={posterPreviewUrl}
+              alt={posterLabel}
+            />
+            <p className="app-layer-poster-hint">{POSTER.saveHint}</p>
+          </>
+        ) : null}
       </SiteLayer>
     </div>
   )

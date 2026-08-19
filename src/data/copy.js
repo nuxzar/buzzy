@@ -56,6 +56,10 @@ export function honorFailSub(correctCount) {
   return `你回答对了${correctCount}道题，每个人都有自己的观点`
 }
 
+export const POSTER = {
+  saveHint: '长按即可保存这张海报',
+}
+
 /** @deprecated 分支文案见 HONOR_PASS / HONOR_FAIL */
 export const HONOR = HONOR_FAIL
 
