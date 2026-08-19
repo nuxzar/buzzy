@@ -8,6 +8,7 @@ import Bubbles from './Bubbles'
 const COVER_PASS_SRC = '/images/red.jpg'
 const COVER_FAIL_SRC = '/images/blue.jpg'
 const SEAL_SRC = '/images/seal.png'
+const BLUE_FISH_SRC = '/images/blue_fish.png'
 const DELUXE_SRC = '/images/deluxe.jpg'
 
 const FLAME_PASS = {
@@ -89,8 +90,8 @@ async function shareOrSave(file, filename) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1500)
 }
 
-async function composeCertificate(nickname, code, coverSrc, cert) {
-  const [cover, seal] = await Promise.all([loadImage(coverSrc), loadImage(SEAL_SRC)])
+async function composeCertificate(nickname, code, coverSrc, cert, cornerSrc) {
+  const [cover, corner] = await Promise.all([loadImage(coverSrc), loadImage(cornerSrc)])
   const size = cover.naturalWidth || 1080
   const canvas = document.createElement('canvas')
   canvas.width = size
@@ -115,9 +116,9 @@ async function composeCertificate(nickname, code, coverSrc, cert) {
 
   ctx.shadowBlur = 0
   ctx.shadowColor = 'transparent'
-  const sealW = size * 0.4
-  const sealH = sealW * (seal.naturalHeight / Math.max(seal.naturalWidth, 1))
-  ctx.drawImage(seal, size - sealW, size - sealH, sealW, sealH)
+  const cornerW = size * 0.4
+  const cornerH = cornerW * (corner.naturalHeight / Math.max(corner.naturalWidth, 1))
+  ctx.drawImage(corner, size - cornerW, size - cornerH, cornerW, cornerH)
 
   return canvas
 }
@@ -126,6 +127,7 @@ export default function AlbumHonor({ nickname, passed = false }) {
   const honor = passed ? HONOR_PASS : HONOR_FAIL
   const cert = passed ? CERT_PASS : CERT
   const coverSrc = passed ? COVER_PASS_SRC : COVER_FAIL_SRC
+  const cornerSrc = passed ? SEAL_SRC : BLUE_FISH_SRC
   const flame = passed ? FLAME_PASS : FLAME_FAIL
 
   const code = useMemo(() => makeCertCode(), [])
@@ -149,7 +151,7 @@ export default function AlbumHonor({ nickname, passed = false }) {
   useEffect(() => {
     let cancelled = false
     const filename = `${posterLabel}.png`
-    composeCertificate(name, code, coverSrc, cert).then(async (canvas) => {
+    composeCertificate(name, code, coverSrc, cert, cornerSrc).then(async (canvas) => {
       const blob = await new Promise((resolve) => {
         canvas.toBlob(resolve, 'image/png')
       })
@@ -159,14 +161,14 @@ export default function AlbumHonor({ nickname, passed = false }) {
     return () => {
       cancelled = true
     }
-  }, [name, code, coverSrc, cert, posterLabel])
+  }, [name, code, coverSrc, cert, cornerSrc, posterLabel])
 
   async function savePoster(event) {
     event.currentTarget.blur()
     const filename = `${posterLabel}.png`
     let file = posterFile
     if (!file) {
-      const canvas = await composeCertificate(name, code, coverSrc, cert)
+      const canvas = await composeCertificate(name, code, coverSrc, cert, cornerSrc)
       const blob = await new Promise((resolve) => {
         canvas.toBlob(resolve, 'image/png')
       })
@@ -197,7 +199,7 @@ export default function AlbumHonor({ nickname, passed = false }) {
               <p className="app-cert-honor-label">{cert.honorLine}</p>
               <p className="app-cert-honor-name">{name}</p>
             </div>
-            <img className="app-cert-seal" src={SEAL_SRC} alt="" draggable="false" />
+            <img className="app-cert-seal" src={cornerSrc} alt="" draggable="false" />
           </div>
         </FlameWrap>
       </div>
