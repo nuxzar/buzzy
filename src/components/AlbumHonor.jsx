@@ -154,6 +154,12 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
   }, [passed, copyReady])
 
   useEffect(() => {
+    if (!confettiActive) return undefined
+    const timer = window.setTimeout(() => setConfettiActive(false), 2800)
+    return () => window.clearTimeout(timer)
+  }, [confettiActive])
+
+  useEffect(() => {
     let cancelled = false
     const filename = `${posterLabel}.png`
     composeCertificate(name, code, coverSrc, cert, cornerSrc).then(async (canvas) => {

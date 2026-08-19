@@ -444,8 +444,6 @@
   top: 50%;
   width: var(--w);
   height: var(--h);
-  margin-left: calc(var(--w) * -0.5);
-  margin-top: calc(var(--h) * -0.5);
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--c) 88%, #fff 12%) 0%,
@@ -457,24 +455,37 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.35),
     0 1px 2px rgba(0, 0, 0, 0.18);
   opacity: 0;
-  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.15);
-  animation: pass-confetti-burst var(--dur) cubic-bezier(0.18, 0.72, 0.22, 1) var(--delay) both;
+  will-change: transform, opacity;
+  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.08);
+  animation: pass-confetti-burst var(--dur) cubic-bezier(0.08, 0.84, 0.24, 1) var(--delay) forwards;
 }
 
 @keyframes pass-confetti-burst {
   0% {
     opacity: 0;
-    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.15);
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.08);
   }
 
-  12% {
+  8% {
     opacity: 1;
   }
 
-  100% {
-    opacity: 0.88;
+  42% {
+    opacity: 1;
     transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty)), 0)
-      rotate(calc(var(--rot) + var(--flutter))) scale(1);
+      rotate(calc(var(--rot) * 0.55)) scale(1);
+  }
+
+  78% {
+    opacity: 0.55;
+    transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty) + var(--fall)), 0)
+      rotate(calc(var(--rot) * 0.92)) scale(0.92);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty) + var(--fall)), 0)
+      rotate(calc(var(--rot) + var(--flutter))) scale(0.65);
   }
 }
 

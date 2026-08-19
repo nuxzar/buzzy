@@ -14,18 +14,19 @@ const COLORS = [
 function makePieces(count, wave) {
   return Array.from({ length: count }, (_, index) => {
     const angle = ((Math.PI * 2 * index) / count) + (Math.random() - 0.5) * 0.9
-    const dist = 42 + Math.random() * 58
+    const dist = 58 + Math.random() * 112
     return {
       id: `${wave}-${index}`,
       w: 3 + Math.random() * 5,
       h: 10 + Math.random() * 22,
       color: COLORS[(index + wave) % COLORS.length],
       tx: Math.cos(angle) * dist,
-      ty: Math.sin(angle) * dist * 0.92 - 8,
-      rot: Math.random() * 720 - 360,
-      delay: wave * 0.14 + Math.random() * 0.12,
-      dur: 1.6 + Math.random() * 1.1,
-      flutter: Math.random() * 40 - 20,
+      ty: Math.sin(angle) * dist - 14,
+      fall: 22 + Math.random() * 38,
+      rot: Math.random() * 540 - 270,
+      delay: wave * 0.07 + Math.random() * 0.09,
+      dur: 1 + Math.random() * 0.55,
+      flutter: Math.random() * 50 - 25,
     }
   })
 }
@@ -45,8 +46,9 @@ export default function PassConfetti({ active }) {
             '--w': `${piece.w}px`,
             '--h': `${piece.h}px`,
             '--c': piece.color,
-            '--tx': `${piece.tx}%`,
-            '--ty': `${piece.ty}%`,
+            '--tx': `${piece.tx}px`,
+            '--ty': `${piece.ty}px`,
+            '--fall': `${piece.fall}px`,
             '--rot': `${piece.rot}deg`,
             '--flutter': `${piece.flutter}deg`,
             '--delay': `${piece.delay}s`,
