@@ -3,6 +3,7 @@ import { FlameWrap } from './canvasui/FlameWrap'
 import { CERT, CERT_PASS, HONOR_PASS, HONOR_FAIL, honorFailSub, POSTER } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import SiteLayer from './SiteLayer'
+import PassConfetti from './PassConfetti'
 import Bubbles from './Bubbles'
 
 const COVER_PASS_SRC = '/images/red.jpg'
@@ -128,6 +129,7 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
   const [posterOpen, setPosterOpen] = useState(false)
   const [posterPreviewUrl, setPosterPreviewUrl] = useState(null)
   const [posterFile, setPosterFile] = useState(null)
+  const [confettiActive, setConfettiActive] = useState(false)
 
   const posterLabel = passed ? `BUZZY-鲶鱼-典藏凭证-${name}` : `BUZZY-鲶鱼-证书-${name}`
 
@@ -140,6 +142,16 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
     const timer = window.setTimeout(() => setCopyReady(true), 3400)
     return () => window.clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    if (!passed || !copyReady) return undefined
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return undefined
+
+    const timer = window.setTimeout(() => setConfettiActive(true), 420)
+    return () => window.clearTimeout(timer)
+  }, [passed, copyReady])
 
   useEffect(() => {
     let cancelled = false
@@ -206,27 +218,30 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
 
   return (
     <div className={`app-album${passed ? ' is-pass' : ' is-fail'}`}>
-      <div
-        className="app-album-art"
-        onAnimationEnd={(event) => {
-          if (event.target !== event.currentTarget) return
-          if (event.animationName !== 'album-rise') return
-          setCopyReady(true)
-        }}
-      >
-        <FlameWrap className="app-album-flame" {...flame}>
-          <div className="app-cert">
-            <img className="app-album-cover" src={coverSrc} alt="" draggable="false" />
-            <p className="app-cert-id">
-              {cert.idLabel} {code}
-            </p>
-            <div className="app-cert-honor">
-              <p className="app-cert-honor-label">{cert.honorLine}</p>
-              <p className="app-cert-honor-name">{name}</p>
+      <div className="app-album-art-wrap">
+        <PassConfetti active={passed && confettiActive} />
+        <div
+          className="app-album-art"
+          onAnimationEnd={(event) => {
+            if (event.target !== event.currentTarget) return
+            if (event.animationName !== 'album-rise') return
+            setCopyReady(true)
+          }}
+        >
+          <FlameWrap className="app-album-flame" {...flame}>
+            <div className="app-cert">
+              <img className="app-album-cover" src={coverSrc} alt="" draggable="false" />
+              <p className="app-cert-id">
+                {cert.idLabel} {code}
+              </p>
+              <div className="app-cert-honor">
+                <p className="app-cert-honor-label">{cert.honorLine}</p>
+                <p className="app-cert-honor-name">{name}</p>
+              </div>
+              <img className="app-cert-seal" src={cornerSrc} alt="" draggable="false" />
             </div>
-            <img className="app-cert-seal" src={cornerSrc} alt="" draggable="false" />
-          </div>
-        </FlameWrap>
+          </FlameWrap>
+        </div>
       </div>
       <div className={`app-album-copy${copyReady ? ' is-revealed' : ''}`}>
         <Bubbles />

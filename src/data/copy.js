@@ -7,8 +7,8 @@ export const BOOT = {
 
 export const INTRO = {
   lead: '我是 Lil Nian，我老凶狠了',
-  ask: '聊聊？',
-  cta: '聊呗',
+  ask: '我有事问你…',
+  cta: '问呗',
 }
 
 export const NEXT_CHAPTER = {

@@ -416,12 +416,66 @@
   overflow: visible;
 }
 
+.app-album-art-wrap {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 18px;
+  overflow: visible;
+}
+
 .app-album-art {
   width: min(72vw, 48dvh, 400px);
   aspect-ratio: 1;
   flex-shrink: 0;
-  margin-bottom: 18px;
   animation: album-rise 3.2s cubic-bezier(0.22, 0.12, 0.24, 1) both;
+}
+
+.app-pass-confetti {
+  position: absolute;
+  inset: -18%;
+  z-index: 6;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.app-pass-confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--w);
+  height: var(--h);
+  margin-left: calc(var(--w) * -0.5);
+  margin-top: calc(var(--h) * -0.5);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c) 88%, #fff 12%) 0%,
+    var(--c) 55%,
+    color-mix(in srgb, var(--c) 82%, #000 18%) 100%
+  );
+  border-radius: 1px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.15);
+  animation: pass-confetti-burst var(--dur) cubic-bezier(0.18, 0.72, 0.22, 1) var(--delay) both;
+}
+
+@keyframes pass-confetti-burst {
+  0% {
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.15);
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.88;
+    transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty)), 0)
+      rotate(calc(var(--rot) + var(--flutter))) scale(1);
+  }
 }
 
 .app-album-flame {
@@ -502,9 +556,12 @@
 }
 
 @media (max-height: 740px) {
+  .app-album-art-wrap {
+    margin-bottom: 12px;
+  }
+
   .app-album-art {
     width: min(58vw, 36dvh, 280px);
-    margin-bottom: 12px;
   }
 }
 
@@ -1326,6 +1383,12 @@
   .app-quiz-layer--far,
   .app-quiz-bubble,
   .app-fish-bubble {
+    display: none;
+  }
+
+  .app-pass-confetti,
+  .app-pass-confetti-piece {
+    animation: none;
     display: none;
   }
 

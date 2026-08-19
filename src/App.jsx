@@ -9,6 +9,7 @@ import TrailCopy from './components/TrailCopy'
 import Quiz from './components/Quiz'
 import Bubbles from './components/Bubbles'
 import { BRAND } from './data/copy'
+import { bindBubbleClickSounds } from './utils/bubbleClick'
 import './App.css'
 
 const BOOT_LEAVE_MS = 900
@@ -77,6 +78,8 @@ function App() {
       window.visualViewport?.removeEventListener('resize', update)
     }
   }, [])
+
+  useEffect(() => bindBubbleClickSounds(), [])
 
   function handleEnter() {
     if (boot !== 'ready') return
