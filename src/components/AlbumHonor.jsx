@@ -1,13 +1,54 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FlameWrap } from './canvasui/FlameWrap'
-import { CERT, HONOR } from '../data/copy'
+import { CERT, CERT_PASS, HONOR_PASS, HONOR_FAIL } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import SiteLayer from './SiteLayer'
 import Bubbles from './Bubbles'
 
-const COVER_SRC = '/images/cover.jpg'
+const COVER_PASS_SRC = '/images/red.jpg'
+const COVER_FAIL_SRC = '/images/blue.jpg'
 const SEAL_SRC = '/images/seal.png'
 const DELUXE_SRC = '/images/deluxe.jpg'
+
+const FLAME_PASS = {
+  color: [1, 0.06, 0.02],
+  intensity: 0.9,
+  height: 88,
+  spread: 10,
+  radius: 8,
+  speed: 0.32,
+  scale: 0.7,
+  turbulence: 0.55,
+  turbulenceScale: 0.7,
+  turbulenceReach: 18,
+  sparks: 1.4,
+  sparkSize: 0.4,
+  melt: 6,
+  distortion: 8,
+  smoke: 1.2,
+  ember: 1.6,
+  rim: 2.2,
+}
+
+const FLAME_FAIL = {
+  color: [0.22, 0.48, 1],
+  intensity: 0.85,
+  height: 88,
+  spread: 10,
+  radius: 8,
+  speed: 0.32,
+  scale: 0.7,
+  turbulence: 0.55,
+  turbulenceScale: 0.7,
+  turbulenceReach: 18,
+  sparks: 1.2,
+  sparkSize: 0.4,
+  melt: 6,
+  distortion: 8,
+  smoke: 1.0,
+  ember: 1.4,
+  rim: 2.0,
+}
 
 function makeCertCode() {
   return String(Math.floor(Math.random() * 100000)).padStart(5, '0')
@@ -48,11 +89,8 @@ async function shareOrSave(file, filename) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1500)
 }
 
-async function composeCertificate(nickname, code) {
-  const [cover, seal] = await Promise.all([
-    loadImage(COVER_SRC),
-    loadImage(SEAL_SRC),
-  ])
+async function composeCertificate(nickname, code, coverSrc, cert) {
+  const [cover, seal] = await Promise.all([loadImage(coverSrc), loadImage(SEAL_SRC)])
   const size = cover.naturalWidth || 1080
   const canvas = document.createElement('canvas')
   canvas.width = size
@@ -68,10 +106,10 @@ async function composeCertificate(nickname, code) {
   ctx.shadowBlur = size * 0.012
   ctx.font = `400 ${lineSize}px system-ui, -apple-system, sans-serif`
   ctx.textAlign = 'left'
-  ctx.fillText(`${CERT.idLabel} ${code}`, pad, pad)
+  ctx.fillText(`${cert.idLabel} ${code}`, pad, pad)
 
   ctx.textAlign = 'right'
-  ctx.fillText(CERT.honorLine, size - pad, pad)
+  ctx.fillText(cert.honorLine, size - pad, pad)
   ctx.font = `600 ${Math.round(size * 0.042)}px system-ui, -apple-system, sans-serif`
   ctx.fillText(nickname, size - pad, pad + lineSize * 1.35)
 
@@ -84,12 +122,19 @@ async function composeCertificate(nickname, code) {
   return canvas
 }
 
-export default function AlbumHonor({ nickname }) {
+export default function AlbumHonor({ nickname, passed = false }) {
+  const honor = passed ? HONOR_PASS : HONOR_FAIL
+  const cert = passed ? CERT_PASS : CERT
+  const coverSrc = passed ? COVER_PASS_SRC : COVER_FAIL_SRC
+  const flame = passed ? FLAME_PASS : FLAME_FAIL
+
   const code = useMemo(() => makeCertCode(), [])
   const name = nickname.trim() || '无名'
   const [copyReady, setCopyReady] = useState(false)
   const [deluxeOpen, setDeluxeOpen] = useState(false)
   const [posterFile, setPosterFile] = useState(null)
+
+  const posterLabel = passed ? `BUZZY-鲶鱼-典藏凭证-${name}` : `BUZZY-鲶鱼-证书-${name}`
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -103,8 +148,8 @@ export default function AlbumHonor({ nickname }) {
 
   useEffect(() => {
     let cancelled = false
-    const filename = `BUZZY-鲶鱼-证书-${name}.png`
-    composeCertificate(name, code).then(async (canvas) => {
+    const filename = `${posterLabel}.png`
+    composeCertificate(name, code, coverSrc, cert).then(async (canvas) => {
       const blob = await new Promise((resolve) => {
         canvas.toBlob(resolve, 'image/png')
       })
@@ -114,14 +159,14 @@ export default function AlbumHonor({ nickname }) {
     return () => {
       cancelled = true
     }
-  }, [name, code])
+  }, [name, code, coverSrc, cert, posterLabel])
 
   async function savePoster(event) {
     event.currentTarget.blur()
-    const filename = `BUZZY-鲶鱼-证书-${name}.png`
+    const filename = `${posterLabel}.png`
     let file = posterFile
     if (!file) {
-      const canvas = await composeCertificate(name, code)
+      const canvas = await composeCertificate(name, code, coverSrc, cert)
       const blob = await new Promise((resolve) => {
         canvas.toBlob(resolve, 'image/png')
       })
@@ -133,7 +178,7 @@ export default function AlbumHonor({ nickname }) {
   }
 
   return (
-    <div className="app-album">
+    <div className={`app-album${passed ? ' is-pass' : ' is-fail'}`}>
       <div
         className="app-album-art"
         onAnimationEnd={(event) => {
@@ -142,33 +187,14 @@ export default function AlbumHonor({ nickname }) {
           setCopyReady(true)
         }}
       >
-        <FlameWrap
-          className="app-album-flame"
-          color={[1, 0.06, 0.02]}
-          intensity={0.9}
-          height={88}
-          spread={10}
-          radius={8}
-          speed={0.32}
-          scale={0.7}
-          turbulence={0.55}
-          turbulenceScale={0.7}
-          turbulenceReach={18}
-          sparks={1.4}
-          sparkSize={0.4}
-          melt={6}
-          distortion={8}
-          smoke={1.2}
-          ember={1.6}
-          rim={2.2}
-        >
+        <FlameWrap className="app-album-flame" {...flame}>
           <div className="app-cert">
-            <img className="app-album-cover" src={COVER_SRC} alt="" draggable="false" />
+            <img className="app-album-cover" src={coverSrc} alt="" draggable="false" />
             <p className="app-cert-id">
-              {CERT.idLabel} {code}
+              {cert.idLabel} {code}
             </p>
             <div className="app-cert-honor">
-              <p className="app-cert-honor-label">{CERT.honorLine}</p>
+              <p className="app-cert-honor-label">{cert.honorLine}</p>
               <p className="app-cert-honor-name">{name}</p>
             </div>
             <img className="app-cert-seal" src={SEAL_SRC} alt="" draggable="false" />
@@ -178,32 +204,52 @@ export default function AlbumHonor({ nickname }) {
       <div className={`app-album-copy${copyReady ? ' is-revealed' : ''}`}>
         <Bubbles />
         <p className="app-quiz-q app-album-title">
-          <TrailCopy text={HONOR.title} />
+          <TrailCopy text={honor.title} />
         </p>
         <p className="app-quiz-q app-album-sub">
-          <TrailCopy text={HONOR.sub} />
+          <TrailCopy text={honor.sub} />
         </p>
         <div className="app-quiz-options app-album-actions">
-          <button
-            type="button"
-            className="app-quiz-opt"
-            onClick={() => window.open(HONOR.albumUrl, '_blank', 'noopener,noreferrer')}
-          >
-            <TrailCopy text={HONOR.review} />
-          </button>
-          <button type="button" className="app-quiz-opt" onClick={savePoster}>
-            <TrailCopy text={HONOR.save} />
-          </button>
-          <button type="button" className="app-quiz-opt" onClick={() => setDeluxeOpen(true)}>
-            <TrailCopy text={HONOR.deluxe} />
-          </button>
+          {passed ? (
+            <>
+              <button type="button" className="app-quiz-opt" onClick={savePoster}>
+                <TrailCopy text={HONOR_PASS.save} />
+              </button>
+              <button type="button" className="app-quiz-opt" onClick={() => setDeluxeOpen(true)}>
+                <TrailCopy text={HONOR_PASS.deluxe} />
+              </button>
+              <button
+                type="button"
+                className="app-quiz-opt"
+                onClick={() => window.open(HONOR_PASS.buyUrl, '_blank', 'noopener,noreferrer')}
+              >
+                <TrailCopy text={HONOR_PASS.buy} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="app-quiz-opt"
+                onClick={() => window.open(HONOR_FAIL.albumUrl, '_blank', 'noopener,noreferrer')}
+              >
+                <TrailCopy text={HONOR_FAIL.review} />
+              </button>
+              <button type="button" className="app-quiz-opt" onClick={savePoster}>
+                <TrailCopy text={HONOR_FAIL.save} />
+              </button>
+              <button type="button" className="app-quiz-opt" onClick={() => setDeluxeOpen(true)}>
+                <TrailCopy text={HONOR_FAIL.deluxe} />
+              </button>
+            </>
+          )}
         </div>
       </div>
       <SiteLayer open={deluxeOpen} onClose={() => setDeluxeOpen(false)}>
         <img
           className="app-layer-art"
           src={DELUXE_SRC}
-          alt={HONOR.deluxeAlt}
+          alt={honor.deluxeAlt}
           draggable="false"
         />
       </SiteLayer>

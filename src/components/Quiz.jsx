@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { QUESTIONS } from '../data/questions'
+import { pickQuizSet, QUIZ_LENGTH } from '../data/quizPick'
 import { INTRO, NEXT_CHAPTER } from '../data/copy'
 import TrailCopy from './TrailCopy'
 import AlbumHonor from './AlbumHonor'
@@ -7,11 +7,14 @@ import NameInput from './NameInput'
 import Bubbles from './Bubbles'
 
 const NEXT_MS = 980
+const PASS_THRESHOLD = 7
 
 export default function Quiz({ onAnswer, onComplete, onAccept }) {
   const [phase, setPhase] = useState('intro')
+  const [questions] = useState(() => pickQuizSet(QUIZ_LENGTH))
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState(null)
+  const [correctCount, setCorrectCount] = useState(0)
   const [introLeaving, setIntroLeaving] = useState(false)
   const [verdictLeaving, setVerdictLeaving] = useState(false)
   const [nickname, setNickname] = useState('')
@@ -19,9 +22,10 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
 
-  const question = QUESTIONS[index]
+  const question = questions[index]
   const quizLeaving = phase === 'quiz' && picked !== null
   const leaving = introLeaving || quizLeaving || verdictLeaving
+  const passed = correctCount >= PASS_THRESHOLD
 
   useEffect(() => {
     if (phase !== 'quiz' || picked === null) return undefined
@@ -30,7 +34,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur()
       }
-      if (index >= QUESTIONS.length - 1) {
+      if (index >= questions.length - 1) {
         setPhase('happy')
         setPicked(null)
         onCompleteRef.current?.()
@@ -42,7 +46,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
     }, NEXT_MS)
 
     return () => window.clearTimeout(timer)
-  }, [phase, picked, index])
+  }, [phase, picked, index, questions.length])
 
   useEffect(() => {
     if (phase !== 'happy') return undefined
@@ -91,9 +95,12 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
   }
 
   function handlePick(optionIndex, event) {
-    if (picked !== null) return
+    if (picked !== null || !question) return
     event.currentTarget.blur()
     setPicked(optionIndex)
+    if (optionIndex === question.answer) {
+      setCorrectCount((count) => count + 1)
+    }
     onAnswer?.()
   }
 
@@ -184,7 +191,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
       </div>
     )
   } else if (phase === 'chapter') {
-    panel = <AlbumHonor nickname={nickname} />
+    panel = <AlbumHonor nickname={nickname} passed={passed} />
   }
 
   return (

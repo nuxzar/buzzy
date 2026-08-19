@@ -1,52 +1,186 @@
-export const QUESTIONS = [
+/** 题库：每题 options 三选一，answer 为正确答案下标（0–2） */
+export const QUESTION_BANK = [
   {
     id: 'place',
     text: '你觉得这里会有几个问题？',
     options: ['一个', '十八个', '爱几个几个'],
+    answer: 1,
   },
   {
     id: 'approach',
     text: '《鲶鱼》这张专辑名字，灵感来自哪里？',
     options: ['Buzzy小时候让鲶鱼打过', '马冬梅', 'Buzzy对中文说唱环境的认知'],
+    answer: 0,
   },
   {
     id: 'say',
     text: '你觉得Buzzy这张专辑狠不狠？',
     options: ['0 分', '还行', '10 分'],
+    answer: 2,
   },
   {
     id: 'light',
     text: '《鲶鱼》中，Buzzy和哪位说唱歌手合作了？',
     options: ['孙悟空', '法老', '林衫衫'],
+    answer: 1,
   },
   {
     id: 'trust',
     text: '现在的背景音乐是 Buzzy 唱的吗？',
-    options: ['是', '是', '是'],
+    options: ['是', '不是', '听不出来'],
+    answer: 1,
   },
   {
     id: 'water',
     text: '如果听了不喜欢的歌，你会：',
     options: ['切歌', '留言区里怒骂', '分享给好朋友'],
+    answer: 0,
   },
   {
     id: 'seen',
     text: '看着我现拥有的一切',
     options: ['我想回到几年前那一段时光', '你有啥啊？', '不知道你在说什么'],
+    answer: 0,
   },
   {
     id: 'here',
     text: '你怎么看待Buzzy的脏辫？',
-    options: ['年轻人不脏辫叫年轻人吗？', '我没看，不支持也不反对','反对，家里也不管管'],
+    options: ['年轻人不脏辫叫年轻人吗？', '我没看，不支持也不反对', '反对，家里也不管管'],
+    answer: 0,
   },
   {
     id: 'secret',
     text: '大多数时候,你都是实在人吧？',
     options: ['是的', '不是', '不知道该咋说'],
+    answer: 0,
   },
   {
     id: 'after',
     text: '大便完，你是怎么擦屁股的？',
     options: ['用左手', '用右手', '基本不擦'],
+    answer: 1,
+  },
+  {
+    id: 'album-year',
+    text: '《鲶鱼》是 Buzzy 的第几张个人专辑？',
+    options: ['第一张', '第二张', '第三张'],
+    answer: 0,
+  },
+  {
+    id: 'lil-nian',
+    text: '网站里这条会说话的鲶鱼叫什么？',
+    options: ['Lil Nian', 'Lil Fish', 'Lil Buzzy'],
+    answer: 0,
+  },
+  {
+    id: 'mask',
+    text: '典藏版里那头套，在 Buzzy 的故事里象征什么？',
+    options: ['小时候打架的面罩', '舞台妆造', '滑雪装备'],
+    answer: 0,
+  },
+  {
+    id: 'catfish-toy',
+    text: '典藏版宣传图里，小鲶鱼戴着什么？',
+    options: ['眼罩', '皇冠', '耳机'],
+    answer: 0,
+  },
+  {
+    id: 'mixtape',
+    text: '宣传图背景书法里，除了「鲶鱼」还出现了哪个词？',
+    options: ['MIXTAPE', 'ALBUM', 'DELUXE'],
+    answer: 0,
+  },
+  {
+    id: 'honor-fail',
+    text: '答对少于 7 题，你会拿到什么？',
+    options: ['「最真实的人」荣誉证书', '典藏版购买凭证', '空盒子'],
+    answer: 0,
+  },
+  {
+    id: 'honor-pass',
+    text: '答对 7 题及以上，你会解锁什么？',
+    options: ['典藏版购买权利', '免费专辑', 'Buzzy 微信'],
+    answer: 0,
+  },
+  {
+    id: 'bgm',
+    text: '网站背景音乐是什么风格？',
+    options: ['水下环境音', '纯人声 acapella', '重金属'],
+    answer: 0,
+  },
+  {
+    id: 'enter',
+    text: 'Loading 结束后，你要点哪个按钮才能开始？',
+    options: ['认识一下', 'ENTER', '跳过'],
+    answer: 0,
+  },
+  {
+    id: 'quiz-count',
+    text: '每次打开网站，会随机抽几道题？',
+    options: ['10 道', '30 道', '1 道'],
+    answer: 0,
+  },
+  {
+    id: 'seal',
+    text: '证书右下角盖的是什么？',
+    options: ['印章', '二维码', '条形码'],
+    answer: 0,
+  },
+  {
+    id: 'real-person',
+    text: '「最真实的人」这句话出现在哪里？',
+    options: ['证书海报上', 'Loading 页', '浏览器标题'],
+    answer: 0,
+  },
+  {
+    id: 'netease',
+    text: '「听听《鲶鱼》」会跳转到哪里？',
+    options: ['网易云音乐', 'QQ 音乐', 'Spotify'],
+    answer: 0,
+  },
+  {
+    id: 'fish-react',
+    text: '答题时鲶鱼会有什么反应？',
+    options: ['会动', '会消失', '会唱歌'],
+    answer: 0,
+  },
+  {
+    id: 'swim-away',
+    text: '填完名字后，鲶鱼会做什么？',
+    options: ['游走', '爆炸', '变成人'],
+    answer: 0,
+  },
+  {
+    id: 'flame-fail',
+    text: '没通过测验的海报，边框火焰是什么颜色？',
+    options: ['蓝色', '红色', '绿色'],
+    answer: 0,
+  },
+  {
+    id: 'flame-pass',
+    text: '通过测验的海报，边框火焰是什么颜色？',
+    options: ['红色', '蓝色', '没有火焰'],
+    answer: 0,
+  },
+  {
+    id: 'cover-fail',
+    text: '没通过测验的海报底图是哪张？',
+    options: ['blue.jpg', 'red.jpg', 'cover.jpg'],
+    answer: 0,
+  },
+  {
+    id: 'cover-pass',
+    text: '通过测验的海报底图是哪张？',
+    options: ['red.jpg', 'blue.jpg', 'deluxe.jpg'],
+    answer: 0,
+  },
+  {
+    id: 'deluxe-btn-fail',
+    text: '没通过时，第三个按钮文案是什么？',
+    options: ['了解下实体专辑+周边', '去购买典藏版', '再试一次'],
+    answer: 0,
   },
 ]
+
+/** @deprecated 使用 pickQuizSet() 随机抽题 */
+export const QUESTIONS = QUESTION_BANK
