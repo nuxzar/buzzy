@@ -139,7 +139,7 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
       setCopyReady(true)
       return undefined
     }
-    const timer = window.setTimeout(() => setCopyReady(true), 3400)
+    const timer = window.setTimeout(() => setCopyReady(true), 2300)
     return () => window.clearTimeout(timer)
   }, [])
 
@@ -149,7 +149,7 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) return undefined
 
-    const timer = window.setTimeout(() => setConfettiActive(true), 420)
+    const timer = window.setTimeout(() => setConfettiActive(true), 250)
     return () => window.clearTimeout(timer)
   }, [passed, copyReady])
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BOOT } from '../data/copy'
 
-const CTA_DELAY_MS = 680
+const CTA_DELAY_MS = 420
 
 export default function BootScreen({
   progress,

@@ -6,7 +6,7 @@ import AlbumHonor from './AlbumHonor'
 import NameInput from './NameInput'
 import Bubbles from './Bubbles'
 
-const NEXT_MS = 980
+const NEXT_MS = 620
 const PASS_THRESHOLD = 7
 
 export default function Quiz({ onAnswer, onComplete, onAccept }) {
@@ -53,7 +53,7 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
 
     const timer = window.setTimeout(() => {
       setPhase('verdict')
-    }, 2600)
+    }, 1600)
 
     return () => window.clearTimeout(timer)
   }, [phase])
