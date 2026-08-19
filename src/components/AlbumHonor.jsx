@@ -155,7 +155,7 @@ export default function AlbumHonor({ nickname, passed = false, correctCount = 0 
 
   useEffect(() => {
     if (!confettiActive) return undefined
-    const timer = window.setTimeout(() => setConfettiActive(false), 4200)
+    const timer = window.setTimeout(() => setConfettiActive(false), 1900)
     return () => window.clearTimeout(timer)
   }, [confettiActive])
 

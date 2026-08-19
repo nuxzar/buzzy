@@ -432,10 +432,46 @@
 
 .app-pass-confetti {
   position: absolute;
-  inset: -48%;
+  inset: -72%;
   z-index: 6;
   pointer-events: none;
   overflow: visible;
+}
+
+.app-pass-confetti::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.15);
+  background: radial-gradient(
+    circle,
+    rgba(255, 228, 190, 0.72) 0%,
+    rgba(255, 170, 120, 0.28) 38%,
+    transparent 72%
+  );
+  opacity: 0;
+  animation: pass-firework-flash 0.55s cubic-bezier(0.08, 1, 0.2, 1) forwards;
+}
+
+@keyframes pass-firework-flash {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.15);
+  }
+
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.85);
+  }
 }
 
 .app-pass-confetti-piece {
@@ -446,52 +482,42 @@
   height: var(--h);
   background: linear-gradient(
     165deg,
-    color-mix(in srgb, var(--c) 90%, #fff 10%) 0%,
-    var(--c) 48%,
-    color-mix(in srgb, var(--c) 78%, #000 22%) 100%
+    color-mix(in srgb, var(--c) 92%, #fff 8%) 0%,
+    var(--c) 45%,
+    color-mix(in srgb, var(--c) 75%, #000 25%) 100%
   );
   border-radius: 1px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    0 1px 3px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 1px 4px rgba(0, 0, 0, 0.14);
   opacity: 0;
   will-change: transform, opacity;
-  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.04);
-  animation: pass-confetti-burst var(--dur) var(--ease) var(--delay) forwards;
+  transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.02);
+  animation: pass-firework-burst var(--dur) cubic-bezier(0.04, 1, 0.22, 1) var(--delay) forwards;
 }
 
-@keyframes pass-confetti-burst {
+@keyframes pass-firework-burst {
   0% {
     opacity: 0;
-    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.04);
+    transform: translate3d(-50%, -50%, 0) rotate(0deg) scale(0.02);
   }
 
-  6% {
-    opacity: 0.92;
-  }
-
-  22% {
+  7% {
     opacity: 1;
-    transform: translate3d(calc(-50% + var(--peak-x)), calc(-50% + var(--peak-y)), 0)
-      rotate(calc(var(--rot-mid) * 0.35)) scale(1.08);
   }
 
-  46% {
-    opacity: 0.96;
-    transform: translate3d(calc(-50% + var(--tx)), calc(-50% + var(--ty)), 0)
-      rotate(var(--rot-mid)) scale(1);
+  38% {
+    opacity: 1;
   }
 
-  68% {
-    opacity: 0.72;
-    transform: translate3d(calc(-50% + var(--drift-x)), calc(-50% + var(--drift-y)), 0)
-      rotate(calc(var(--rot-mid) + var(--rot-end) * 0.18)) scale(0.94);
+  58% {
+    opacity: 0.55;
   }
 
   100% {
     opacity: 0;
-    transform: translate3d(calc(-50% + var(--final-x)), calc(-50% + var(--final-y)), 0)
-      rotate(var(--rot-end)) scale(0.5);
+    transform: translate3d(calc(-50% + var(--fx)), calc(-50% + var(--fy)), 0) rotate(var(--spin))
+      scale(0.28);
   }
 }
 
@@ -1404,6 +1430,7 @@
   }
 
   .app-pass-confetti,
+  .app-pass-confetti::after,
   .app-pass-confetti-piece {
     animation: none;
     display: none;
