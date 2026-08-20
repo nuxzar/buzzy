@@ -69,6 +69,19 @@ export const POSTER = {
   saveHint: '长按图片保存海报',
 }
 
+export const NAME_MODERATION = {
+  checking: '我听听你叫啥……',
+  empty: '你还没告诉我你叫什么',
+  too_long: '名字太长了，水下记不住',
+  symbols: '这串符号听着不像名字，换一个呗',
+  repeat: '叠这么多字，我脑子嗡嗡的，换一个',
+  blocked: '这名字水下听着不太对劲，换一个再告诉我',
+  rejected: '这名字水下听着不太对劲，换一个再告诉我',
+  rate_limited: '你喊太勤了，让我缓口气再试',
+  unavailable: '水下信号糊了，稍后再试一次',
+  bad_request: '水下信号糊了，稍后再试一次',
+}
+
 /** @deprecated 分支文案见 HONOR_PASS / HONOR_FAIL */
 export const HONOR = HONOR_FAIL
 

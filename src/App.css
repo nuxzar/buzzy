@@ -334,6 +334,19 @@
   letter-spacing: 0.08em;
 }
 
+.app-quiz-name-hint {
+  position: relative;
+  z-index: 2;
+  margin: 10px 0 0;
+  color: rgba(210, 235, 255, 0.82);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: clamp(12px, 2.6vw, 14px);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .app-cert {
   position: relative;
   width: 100%;

@@ -15,5 +15,12 @@ export default defineConfig({
       usePolling: true,
       interval: 400,
     },
+    proxy: {
+      // Use `vercel dev` for real /api; this only avoids hard 404 noise in plain vite.
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+    },
   },
 })

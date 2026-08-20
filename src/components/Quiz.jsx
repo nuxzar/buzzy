@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { pickQuizSet, QUIZ_LENGTH } from '../data/quizPick'
-import { INTRO, NEXT_CHAPTER_PASS, NEXT_CHAPTER_FAIL } from '../data/copy'
+import { INTRO, NEXT_CHAPTER_PASS, NEXT_CHAPTER_FAIL, NAME_MODERATION } from '../data/copy'
+import { messageForModerationReason, moderateNickname } from '../utils/moderateNickname'
 import TrailCopy from './TrailCopy'
 import AlbumHonor from './AlbumHonor'
 import NameInput from './NameInput'
@@ -18,8 +19,11 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
   const [introLeaving, setIntroLeaving] = useState(false)
   const [verdictLeaving, setVerdictLeaving] = useState(false)
   const [nickname, setNickname] = useState('')
+  const [nameHint, setNameHint] = useState('')
+  const [nameChecking, setNameChecking] = useState(false)
   const [kbLift, setKbLift] = useState(0)
   const onCompleteRef = useRef(onComplete)
+  const moderatingRef = useRef(false)
   onCompleteRef.current = onComplete
 
   const question = questions[index]
@@ -105,11 +109,32 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
     onAnswer?.()
   }
 
-  function handleAccept(submitted, event) {
-    const name = (typeof submitted === 'string' ? submitted : nickname).trim()
-    if (!name) return
+  function handleNicknameChange(next) {
+    setNickname(next)
+    if (nameHint) setNameHint('')
+  }
+
+  async function handleAccept(submitted, event) {
+    if (moderatingRef.current || verdictLeaving) return
     event?.currentTarget?.blur()
-    setNickname(name)
+
+    const raw = typeof submitted === 'string' ? submitted : nickname
+    moderatingRef.current = true
+    setNameChecking(true)
+    setNameHint(NAME_MODERATION.checking)
+
+    const result = await moderateNickname(raw)
+
+    moderatingRef.current = false
+    setNameChecking(false)
+
+    if (!result.ok) {
+      setNameHint(messageForModerationReason(result.reason))
+      return
+    }
+
+    setNickname(result.name)
+    setNameHint('')
     onAccept?.()
     setPhase('chapter')
   }
@@ -175,18 +200,19 @@ export default function Quiz({ onAnswer, onComplete, onAccept }) {
         </p>
         <NameInput
           value={nickname}
-          onChange={setNickname}
-          disabled={verdictLeaving}
+          onChange={handleNicknameChange}
+          disabled={verdictLeaving || nameChecking}
           onSubmit={handleAccept}
         />
+        {nameHint ? <p className="app-quiz-name-hint">{nameHint}</p> : null}
         <div className="app-quiz-options">
           <button
             type="button"
             className={`app-quiz-opt app-quiz-intro-cta${verdictLeaving ? ' is-picked' : ''}`}
-            disabled={verdictLeaving || !nickname.trim()}
+            disabled={verdictLeaving || nameChecking || !nickname.trim()}
             onClick={(event) => handleAccept(undefined, event)}
           >
-            <TrailCopy text={nextChapter.cta} />
+            <TrailCopy text={nameChecking ? NAME_MODERATION.checking : nextChapter.cta} />
           </button>
         </div>
       </div>

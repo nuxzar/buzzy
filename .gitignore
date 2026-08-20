@@ -28,3 +28,4 @@ dist-ssr
 .verify
 originals
 .vercel
+.pnpm-store/
